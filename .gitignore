@@ -1,0 +1,6 @@
+crm-go
+crm-go.tar.gz
+*.tmp
+swagger/
+
+conf/app.conf
