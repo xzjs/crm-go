@@ -3,7 +3,6 @@ package controllers
 import (
 	"crm-go/models"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -28,10 +27,12 @@ func (c *FileController) URLMapping() {
 
 // Post ...
 // @Title Post
-// @Description create File
-// @Param	body		body 	models.File	true		"body for File content"
-// @Success 201 {int} models.File
-// @Failure 403 body is empty
+// @Description 上传文件接口
+// @Param	name		formData 	string	true		"上传文件名"
+// @Param	file		formData 	file	true		"上传的文件"
+// @Success 200 {int} file的ID
+// @Failure 400 用户错误
+// @Failure 500 服务端错误
 // @router / [post]
 func (c *FileController) Post() {
 	name := c.GetString("name")
@@ -51,7 +52,7 @@ func (c *FileController) Post() {
 	o := orm.NewOrm()
 	user := models.User{ID: uid}
 	file := models.File{Name: name, User: &user}
-	if err := o.Read(&file, "Name", "User"); err == nil {
+	if o.Read(&file, "Name", "User") == nil {
 		file.Time = time.Now()
 		num, err := o.Update(&file, "Time")
 		if err != nil {
@@ -60,14 +61,13 @@ func (c *FileController) Post() {
 		}
 		c.Data["json"] = num
 	} else {
-		fmt.Println(err.Error())
 		file.Time = time.Now()
-		id, err := o.Insert(&file)
+		_, err := o.Insert(&file)
 		if err != nil {
 			c.Data["json"] = err.Error()
 			c.Abort("500")
 		}
-		c.Data["json"] = id
+		c.Data["json"] = file.ID
 	}
 
 	defer f.Close()
