@@ -2,5 +2,7 @@ crm-go
 crm-go.tar.gz
 *.tmp
 swagger/
+log/
+upload/
 
 conf/app.conf

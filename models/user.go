@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	ID     int    `orm:"pk;auto;column(id)"`
+	ID     int64  `orm:"pk;auto;column(id)"`
 	Mobile string `orm:"size(11);cplumn(mobile)"`
 	Type   int    `orm:"size(1);cplumn(type)"`
 }
@@ -22,4 +22,11 @@ func GetUserByMobile(mobile string) (id int64, err error) {
 	}
 	return 0, err
 
+}
+
+func GetUserById(id int64) (user User, err error) {
+	o := orm.NewOrm()
+	user = User{ID: id}
+	err = o.Read(&user)
+	return user, err
 }

@@ -35,3 +35,20 @@ func (l *LoginController) Post() {
 	}
 	l.ServeJSON()
 }
+
+// @Title GetLoginUser
+// @Description 获取登录用户
+// @Success 200 {object} 用户id
+// @Failure 401 {string} 验证码错误
+// @router / [get]
+func (l *LoginController) Get() {
+	id := l.GetSession("uid")
+	v, err := models.GetUserById(id.(int64))
+	if err != nil {
+		l.Data["json"] = err.Error()
+	} else {
+		l.Ctx.ResponseWriter.WriteHeader(401)
+		l.Data["json"] = v
+	}
+	l.ServeJSON()
+}

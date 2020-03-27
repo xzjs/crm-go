@@ -1,7 +1,10 @@
 package main
 
 import (
+	"crm-go/controllers"
 	_ "crm-go/routers"
+
+	"github.com/astaxie/beego/logs"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -21,7 +24,10 @@ func main() {
 	if beego.BConfig.RunMode == "dev" {
 		beego.BConfig.WebConfig.DirectoryIndex = true
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+		orm.Debug = true
 	}
+	beego.ErrorController(&controllers.ErrorController{})
 	beego.BConfig.WebConfig.Session.SessionOn = true
+	logs.SetLogger(logs.AdapterFile, `{"filename":"log/crm.log"}`)
 	beego.Run()
 }
