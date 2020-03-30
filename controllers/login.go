@@ -21,7 +21,8 @@ type LoginController struct {
 func (l *LoginController) Post() {
 	var login models.Login
 	json.Unmarshal(l.Ctx.Input.RequestBody, &login)
-	if login.Vcode == "111111" {
+	vcode := models.Redis.Get(login.Mobile)
+	if login.Vcode == vcode {
 		if id, err := models.GetUserByMobile(login.Mobile); err == nil {
 			l.SetSession("uid", id)
 			l.Data["json"] = id

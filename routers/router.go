@@ -35,6 +35,11 @@ func init() {
 				&controllers.FileController{},
 			),
 		),
+		beego.NSNamespace("/sms",
+			beego.NSInclude(
+				&controllers.SmsController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }

@@ -3,28 +3,20 @@ package controllers
 import (
 	"crm-go/models"
 	"encoding/json"
-	"image/color"
 
 	"github.com/astaxie/beego"
-	"github.com/mojocn/base64Captcha"
 )
 
 type CaptchaController struct {
 	beego.Controller
 }
 
-var store = base64Captcha.DefaultMemStore
-
 // @Title GetCaptcha
 // @Description 获取图形验证码
 // @Success 200 {object} models.Captcha
 // @router / [get]
 func (c *CaptchaController) Get() {
-	bgcolor := color.RGBA{0, 0, 0, 0}
-	fonts := []string{"wqy-microhei.ttc"}
-	driver := base64Captcha.NewDriverMath(40, 102, 0, 0, &bgcolor, fonts)
-	captcha := base64Captcha.NewCaptcha(driver, store)
-	id, b64s, err := captcha.Generate()
+	id, b64s, err := models.GetCaptcha()
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {
@@ -41,7 +33,7 @@ func (c *CaptchaController) Get() {
 func (c *CaptchaController) Post() {
 	var captcha models.Captcha
 	json.Unmarshal(c.Ctx.Input.RequestBody, &captcha)
-	if store.Verify(captcha.ID, captcha.B64s, true) {
+	if models.VerifyCaptcha(captcha.ID, captcha.B64s) {
 		c.Data["json"] = true
 	} else {
 		c.Data["json"] = false
