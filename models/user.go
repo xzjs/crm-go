@@ -5,28 +5,26 @@ import (
 )
 
 type User struct {
-	ID     int64  `orm:"pk;auto;column(id)"`
-	Mobile string `orm:"size(11);cplumn(mobile)"`
-	Type   int    `orm:"size(1);cplumn(type)"`
+	Id     int64
+	Mobile string `orm:"size(11)"`
+	Type   int    `orm:"size(1)"`
 }
 
 func init() {
 	orm.RegisterModel(new(User))
 }
 
+// 根据手机号获取或注册用户
 func GetUserByMobile(mobile string) (id int64, err error) {
 	o := orm.NewOrm()
 	user := User{Mobile: mobile}
-	if _, id, err := o.ReadOrCreate(&user, "Mobile"); err == nil {
-		return id, nil
-	}
-	return 0, err
-
+	_, id, err = o.ReadOrCreate(&user, "Mobile")
+	return id, err
 }
 
 func GetUserById(id int64) (user User, err error) {
 	o := orm.NewOrm()
-	user = User{ID: id}
+	user = User{Id: id}
 	err = o.Read(&user)
 	return user, err
 }

@@ -21,19 +21,18 @@ type LoginController struct {
 func (l *LoginController) Post() {
 	var login models.Login
 	json.Unmarshal(l.Ctx.Input.RequestBody, &login)
-	vcode := models.Redis.Get(login.Mobile)
-	if login.Vcode == vcode {
-		if id, err := models.GetUserByMobile(login.Mobile); err == nil {
-			l.SetSession("uid", id)
-			l.Data["json"] = id
-		} else {
-			l.Ctx.ResponseWriter.WriteHeader(500)
-			l.Data["json"] = err.Error()
-		}
-	} else {
-		l.Ctx.ResponseWriter.WriteHeader(400)
+	vcode := string(models.Redis.Get(login.Mobile).([]byte))
+	if login.Vcode != vcode {
 		l.Data["json"] = "验证码错误"
+		l.Abort("400")
 	}
+	id, err := models.GetUserByMobile(login.Mobile)
+	if err != nil {
+		l.Data["json"] = err.Error()
+		l.Abort("500")
+	}
+	// l.SetSession("uid", id)
+	l.Data["json"] = id
 	l.ServeJSON()
 }
 

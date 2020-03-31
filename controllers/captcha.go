@@ -33,7 +33,7 @@ func (c *CaptchaController) Get() {
 func (c *CaptchaController) Post() {
 	var captcha models.Captcha
 	json.Unmarshal(c.Ctx.Input.RequestBody, &captcha)
-	if models.VerifyCaptcha(captcha.ID, captcha.B64s) {
+	if models.VerifyCaptcha(captcha.Id, captcha.B64s) {
 		c.Data["json"] = true
 	} else {
 		c.Data["json"] = false

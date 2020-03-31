@@ -11,7 +11,7 @@ import (
 )
 
 type File struct {
-	ID   int64     `orm:"pk:auto;column(id)"`
+	Id   int64     `orm:"pk;auto;column(id)"`
 	Name string    `orm:"size(128);column(name)"`
 	Time time.Time `orm:"type(datetime);column(time)"`
 	User *User     `orm:"rel(fk)"`
@@ -33,7 +33,7 @@ func AddFile(m *File) (id int64, err error) {
 // Id doesn't exist
 func GetFileById(id int64) (v *File, err error) {
 	o := orm.NewOrm()
-	v = &File{ID: id}
+	v = &File{Id: id}
 	if err = o.QueryTable(new(File)).Filter("Id", id).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
@@ -118,7 +118,7 @@ func GetAllFile(query map[string]string, fields []string, sortby []string, order
 // the record to be updated doesn't exist
 func UpdateFileById(m *File) (err error) {
 	o := orm.NewOrm()
-	v := File{ID: m.ID}
+	v := File{Id: m.Id}
 	// ascertain id exists in the database
 	if err = o.Read(&v); err == nil {
 		var num int64
@@ -133,11 +133,11 @@ func UpdateFileById(m *File) (err error) {
 // the record to be deleted doesn't exist
 func DeleteFile(id int64) (err error) {
 	o := orm.NewOrm()
-	v := File{ID: id}
+	v := File{Id: id}
 	// ascertain id exists in the database
 	if err = o.Read(&v); err == nil {
 		var num int64
-		if num, err = o.Delete(&File{ID: id}); err == nil {
+		if num, err = o.Delete(&File{Id: id}); err == nil {
 			fmt.Println("Number of records deleted in database:", num)
 		}
 	}

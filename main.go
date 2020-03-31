@@ -4,6 +4,8 @@ import (
 	"crm-go/controllers"
 	_ "crm-go/routers"
 
+	"github.com/astaxie/beego/context"
+
 	"github.com/astaxie/beego/logs"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -26,6 +28,24 @@ func main() {
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
 		orm.Debug = true
 	}
+
+	var FilterUser = func(ctx *context.Context) {
+		_, ok := ctx.Input.Session("uid").(int)
+		if !ok {
+			var whiteMap map[string]int
+			whiteMap = make(map[string]int)
+			whiteMap["/v1/login"] = 1
+			whiteMap["/v1/captcha"] = 1
+			whiteMap["/v1/sms"] = 1
+			if _, ok = whiteMap[ctx.Request.RequestURI]; !ok {
+				ctx.ResponseWriter.WriteHeader(401)
+				ctx.WriteString("未登录")
+				return
+			}
+		}
+	}
+	beego.InsertFilter("/v1/*", beego.BeforeRouter, FilterUser)
+
 	beego.ErrorController(&controllers.ErrorController{})
 	beego.BConfig.WebConfig.Session.SessionOn = true
 	logs.SetLogger(logs.AdapterFile, `{"filename":"log/crm.log"}`)

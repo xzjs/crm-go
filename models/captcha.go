@@ -8,7 +8,7 @@ import (
 
 // Captcha 图形验证码
 type Captcha struct {
-	ID   string
+	Id   string
 	B64s string
 }
 

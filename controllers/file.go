@@ -50,7 +50,7 @@ func (c *FileController) Post() {
 	// uid := c.GetSession("uid").(int64)
 	uid := int64(1)
 	o := orm.NewOrm()
-	user := models.User{ID: uid}
+	user := models.User{Id: uid}
 	file := models.File{Name: name, User: &user}
 	if o.Read(&file, "Name", "User") == nil {
 		file.Time = time.Now()
@@ -67,7 +67,7 @@ func (c *FileController) Post() {
 			c.Data["json"] = err.Error()
 			c.Abort("500")
 		}
-		c.Data["json"] = file.ID
+		c.Data["json"] = file.Id
 	}
 
 	defer f.Close()

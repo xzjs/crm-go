@@ -23,7 +23,7 @@ type SmsController struct {
 func (c *SmsController) Post() {
 	var sms models.Sms
 	json.Unmarshal(c.Ctx.Input.RequestBody, &sms)
-	if !models.VerifyCaptcha(sms.Captcha.ID, sms.Captcha.B64s) {
+	if !models.VerifyCaptcha(sms.Captcha.Id, sms.Captcha.B64s) {
 		c.Data["json"] = "图形验证码错误"
 		c.Abort("400")
 	}
