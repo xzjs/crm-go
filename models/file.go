@@ -11,9 +11,9 @@ import (
 )
 
 type File struct {
-	Id   int64     `orm:"pk;auto;column(id)"`
-	Name string    `orm:"size(128);column(name)"`
-	Time time.Time `orm:"type(datetime);column(time)"`
+	Id   int64
+	Name string
+	Time time.Time `orm:"type(datetime)"`
 	User *User     `orm:"rel(fk)"`
 }
 

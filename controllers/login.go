@@ -31,7 +31,7 @@ func (l *LoginController) Post() {
 		l.Data["json"] = err.Error()
 		l.Abort("500")
 	}
-	// l.SetSession("uid", id)
+	l.SetSession("uid", id)
 	l.Data["json"] = id
 	l.ServeJSON()
 }

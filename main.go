@@ -3,6 +3,7 @@ package main
 import (
 	"crm-go/controllers"
 	_ "crm-go/routers"
+	"fmt"
 
 	"github.com/astaxie/beego/context"
 
@@ -30,7 +31,8 @@ func main() {
 	}
 
 	var FilterUser = func(ctx *context.Context) {
-		_, ok := ctx.Input.Session("uid").(int)
+		uid, ok := ctx.Input.Session("uid").(int64)
+		fmt.Println(uid, ok)
 		if !ok {
 			var whiteMap map[string]int
 			whiteMap = make(map[string]int)

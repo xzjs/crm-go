@@ -3,6 +3,7 @@ package controllers
 import (
 	"crm-go/models"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -25,7 +26,6 @@ func (c *FileController) URLMapping() {
 	c.Mapping("Delete", c.Delete)
 }
 
-// Post ...
 // @Title Post
 // @Description 上传文件接口
 // @Param	name		formData 	string	true		"上传文件名"
@@ -37,29 +37,29 @@ func (c *FileController) URLMapping() {
 func (c *FileController) Post() {
 	name := c.GetString("name")
 	f, _, err := c.GetFile("file")
+	defer f.Close()
 	//获取文件失败
 	if err != nil {
 		c.Data["json"] = "获取文件失败"
 		c.Abort("400")
 	}
+	uid := c.GetSession("uid").(int64)
 	//文件存储失败
-	if err = c.SaveToFile("file", "upload/"+name); err != nil {
+	if err = c.SaveToFile("file", fmt.Sprintf("upload/%d_%s", uid, name)); err != nil {
 		c.Data["json"] = err.Error()
 		c.Abort("500")
 	}
-	// uid := c.GetSession("uid").(int64)
-	uid := int64(1)
 	o := orm.NewOrm()
 	user := models.User{Id: uid}
 	file := models.File{Name: name, User: &user}
 	if o.Read(&file, "Name", "User") == nil {
 		file.Time = time.Now()
-		num, err := o.Update(&file, "Time")
+		_, err := o.Update(&file, "Time")
 		if err != nil {
 			c.Data["json"] = err.Error()
 			c.Abort("500")
 		}
-		c.Data["json"] = num
+		c.Data["json"] = file.Id
 	} else {
 		file.Time = time.Now()
 		_, err := o.Insert(&file)
@@ -69,10 +69,7 @@ func (c *FileController) Post() {
 		}
 		c.Data["json"] = file.Id
 	}
-
-	defer f.Close()
 	c.ServeJSON()
-
 }
 
 // GetOne ...
