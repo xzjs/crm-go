@@ -2,23 +2,21 @@ package controllers
 
 import (
 	"crm-go/models"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 )
 
-//  FileController operations for File
-type FileController struct {
+//  ResultController operations for Result
+type ResultController struct {
 	beego.Controller
 }
 
 // URLMapping ...
-func (c *FileController) URLMapping() {
+func (c *ResultController) URLMapping() {
 	c.Mapping("Post", c.Post)
 	c.Mapping("GetOne", c.GetOne)
 	c.Mapping("GetAll", c.GetAll)
@@ -26,63 +24,36 @@ func (c *FileController) URLMapping() {
 	c.Mapping("Delete", c.Delete)
 }
 
+// Post ...
 // @Title Post
-// @Description 上传文件接口
-// @Param	name		formData 	string	true		"上传文件名"
-// @Param	file		formData 	file	true		"上传的文件"
-// @Success 200 {int} file的ID
-// @Failure 400 用户错误
-// @Failure 500 服务端错误
+// @Description create Result
+// @Param	body		body 	models.Result	true		"body for Result content"
+// @Success 201 {int} models.Result
+// @Failure 403 body is empty
 // @router / [post]
-func (c *FileController) Post() {
-	name := c.GetString("name")
-	f, _, err := c.GetFile("file")
-	//获取文件失败
-	if err != nil {
-		c.Data["json"] = "获取文件失败" + err.Error()
-		c.Abort("400")
-	}
-	defer f.Close()
-	uid := c.GetSession("uid").(int64)
-	//文件存储失败
-	if err = c.SaveToFile("file", fmt.Sprintf("%srawdata/CASData/%d_%s", beego.AppConfig.String("xiaodai"), uid, name)); err != nil {
-		c.Data["json"] = err.Error()
-		c.Abort("500")
-	}
-	o := orm.NewOrm()
-	user := models.User{Id: uid}
-	file := models.File{Name: name, User: &user}
-	if o.Read(&file, "Name", "User") == nil {
-		file.Time = time.Now()
-		_, err := o.Update(&file, "Time")
-		if err != nil {
-			c.Data["json"] = err.Error()
-			c.Abort("500")
-		}
-		c.Data["json"] = file.Id
+func (c *ResultController) Post() {
+	var v models.Result
+	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
+	if _, err := models.AddResult(&v); err == nil {
+		c.Ctx.Output.SetStatus(201)
+		c.Data["json"] = v
 	} else {
-		file.Time = time.Now()
-		_, err := o.Insert(&file)
-		if err != nil {
-			c.Data["json"] = err.Error()
-			c.Abort("500")
-		}
-		c.Data["json"] = file.Id
+		c.Data["json"] = err.Error()
 	}
 	c.ServeJSON()
 }
 
 // GetOne ...
 // @Title Get One
-// @Description get File by id
+// @Description get Result by id
 // @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.File
+// @Success 200 {object} models.Result
 // @Failure 403 :id is empty
 // @router /:id [get]
-func (c *FileController) GetOne() {
+func (c *ResultController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.ParseInt(idStr, 0, 64)
-	v, err := models.GetFileById(id)
+	v, err := models.GetResultById(id)
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {
@@ -91,19 +62,18 @@ func (c *FileController) GetOne() {
 	c.ServeJSON()
 }
 
-// GetAll ...
 // @Title Get All
-// @Description get File
+// @Description get Result
 // @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
 // @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
 // @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
 // @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
 // @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
 // @Param	offset	query	string	false	"Start position of result set. Must be an integer"
-// @Success 200 {object} models.File
+// @Success 200 {object} models.Result
 // @Failure 403
 // @router / [get]
-func (c *FileController) GetAll() {
+func (c *ResultController) GetAll() {
 	var fields []string
 	var sortby []string
 	var order []string
@@ -145,7 +115,7 @@ func (c *FileController) GetAll() {
 		}
 	}
 
-	l, err := models.GetAllFile(query, fields, sortby, order, offset, limit)
+	l, err := models.GetAllResult(query, fields, sortby, order, offset, limit)
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {
@@ -156,36 +126,36 @@ func (c *FileController) GetAll() {
 
 // Put ...
 // @Title Put
-// @Description update the File
+// @Description update the Result
 // @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.File	true		"body for File content"
-// @Success 200 {object} models.File
+// @Param	body		body 	models.Result	true		"body for Result content"
+// @Success 200 {object} models.Result
 // @Failure 403 :id is not int
 // @router /:id [put]
-func (c *FileController) Put() {
-	// idStr := c.Ctx.Input.Param(":id")
-	// id, _ := strconv.ParseInt(idStr, 0, 64)
-	// v := models.File{Id: id}
-	// json.Unmarshal(c.Ctx.Input.RequestBody, &v)
-	// if err := models.UpdateFileById(&v); err == nil {
-	// 	c.Data["json"] = "OK"
-	// } else {
-	// 	c.Data["json"] = err.Error()
-	// }
-	// c.ServeJSON()
+func (c *ResultController) Put() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.ParseInt(idStr, 0, 64)
+	v := models.Result{Id: id}
+	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
+	if err := models.UpdateResultById(&v); err == nil {
+		c.Data["json"] = "OK"
+	} else {
+		c.Data["json"] = err.Error()
+	}
+	c.ServeJSON()
 }
 
 // Delete ...
 // @Title Delete
-// @Description delete the File
+// @Description delete the Result
 // @Param	id		path 	string	true		"The id you want to delete"
 // @Success 200 {string} delete success!
 // @Failure 403 id is empty
 // @router /:id [delete]
-func (c *FileController) Delete() {
+func (c *ResultController) Delete() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.ParseInt(idStr, 0, 64)
-	if err := models.DeleteFile(id); err == nil {
+	if err := models.DeleteResult(id); err == nil {
 		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()

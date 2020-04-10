@@ -40,6 +40,16 @@ func init() {
 				&controllers.SmsController{},
 			),
 		),
+		beego.NSNamespace("/task",
+			beego.NSInclude(
+				&controllers.TaskController{},
+			),
+		),
+		beego.NSNamespace("/result",
+			beego.NSInclude(
+				&controllers.ResultController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }

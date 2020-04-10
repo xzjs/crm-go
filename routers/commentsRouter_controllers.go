@@ -133,11 +133,101 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["crm-go/controllers:ResultController"] = append(beego.GlobalControllerRouter["crm-go/controllers:ResultController"],
+        beego.ControllerComments{
+            Method: "Post",
+            Router: `/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:ResultController"] = append(beego.GlobalControllerRouter["crm-go/controllers:ResultController"],
+        beego.ControllerComments{
+            Method: "GetAll",
+            Router: `/`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:ResultController"] = append(beego.GlobalControllerRouter["crm-go/controllers:ResultController"],
+        beego.ControllerComments{
+            Method: "GetOne",
+            Router: `/:id`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:ResultController"] = append(beego.GlobalControllerRouter["crm-go/controllers:ResultController"],
+        beego.ControllerComments{
+            Method: "Put",
+            Router: `/:id`,
+            AllowHTTPMethods: []string{"put"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:ResultController"] = append(beego.GlobalControllerRouter["crm-go/controllers:ResultController"],
+        beego.ControllerComments{
+            Method: "Delete",
+            Router: `/:id`,
+            AllowHTTPMethods: []string{"delete"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["crm-go/controllers:SmsController"] = append(beego.GlobalControllerRouter["crm-go/controllers:SmsController"],
         beego.ControllerComments{
             Method: "Post",
             Router: `/`,
             AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:TaskController"] = append(beego.GlobalControllerRouter["crm-go/controllers:TaskController"],
+        beego.ControllerComments{
+            Method: "Post",
+            Router: `/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:TaskController"] = append(beego.GlobalControllerRouter["crm-go/controllers:TaskController"],
+        beego.ControllerComments{
+            Method: "GetAll",
+            Router: `/`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:TaskController"] = append(beego.GlobalControllerRouter["crm-go/controllers:TaskController"],
+        beego.ControllerComments{
+            Method: "GetOne",
+            Router: `/:id`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:TaskController"] = append(beego.GlobalControllerRouter["crm-go/controllers:TaskController"],
+        beego.ControllerComments{
+            Method: "Put",
+            Router: `/:id`,
+            AllowHTTPMethods: []string{"put"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["crm-go/controllers:TaskController"] = append(beego.GlobalControllerRouter["crm-go/controllers:TaskController"],
+        beego.ControllerComments{
+            Method: "Delete",
+            Router: `/:id`,
+            AllowHTTPMethods: []string{"delete"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})

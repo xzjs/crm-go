@@ -28,3 +28,17 @@ func GetUserById(id int64) (user User, err error) {
 	err = o.Read(&user)
 	return user, err
 }
+
+// 级联获取所有文件
+func (u *User) GetFiles() (files []*File, err error) {
+	o := orm.NewOrm()
+	_, err = o.QueryTable("file").Filter("User", u.Id).RelatedSel().All(&files)
+	return files, err
+}
+
+// 获取用户所有任务
+func (u *User) GetTasks() (tasks []*Task, err error) {
+	o := orm.NewOrm()
+	_, err = o.QueryTable("task").Filter("User", u.Id).RelatedSel().OrderBy("-start_time").All(&tasks)
+	return tasks, err
+}
