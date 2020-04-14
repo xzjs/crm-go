@@ -50,6 +50,11 @@ func init() {
 				&controllers.ResultController{},
 			),
 		),
+		beego.NSNamespace("/record",
+			beego.NSInclude(
+				&controllers.RecordController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }

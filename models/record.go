@@ -5,58 +5,51 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/astaxie/beego/orm"
 )
 
-type Result struct {
-	Id          int64
-	AffinityId  int64
-	ProductDesc string `orm:"size(128)"`
-	Probability float64
-	IsEmerging  int
-	Task        *Task `orm:"rel(fk)"`
+type Record struct {
+	Id   int64
+	Time time.Time `orm:"type(datetime);auto_now_add"`
+	User *User     `orm:"rel(fk)"`
 }
 
 func init() {
-	orm.RegisterModel(new(Result))
+	orm.RegisterModel(new(Record))
 }
 
-// AddResult insert a new Result into database and returns
+// AddRecord insert a new Record into database and returns
 // last inserted Id on success.
-func AddResult(m *Result) (id int64, err error) {
+func AddRecord(m *Record) (id int64, err error) {
 	o := orm.NewOrm()
 	id, err = o.Insert(m)
 	return
 }
 
-// GetResultById retrieves Result by Id. Returns error if
+// GetRecordById retrieves Record by Id. Returns error if
 // Id doesn't exist
-func GetResultById(id int64) (v *Result, err error) {
+func GetRecordById(id int64) (v *Record, err error) {
 	o := orm.NewOrm()
-	v = &Result{Id: id}
-	if err = o.QueryTable(new(Result)).Filter("Id", id).RelatedSel().One(v); err == nil {
+	v = &Record{Id: id}
+	if err = o.QueryTable(new(Record)).Filter("Id", id).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err
 }
 
-// GetAllResult retrieves all Result matches certain condition. Returns empty list if
+// GetAllRecord retrieves all Record matches certain condition. Returns empty list if
 // no records exist
-func GetAllResult(query map[string]string, fields []string, sortby []string, order []string,
-	offset int64, limit int64) (ml []interface{}, num int64, err error) {
+func GetAllRecord(query map[string]string, fields []string, sortby []string, order []string,
+	offset int64, limit int64) (ml []interface{}, err error) {
 	o := orm.NewOrm()
-	qs := o.QueryTable(new(Result))
+	qs := o.QueryTable(new(Record))
 	// query k=v
 	for k, v := range query {
 		// rewrite dot-notation to Object__Attribute
 		k = strings.Replace(k, ".", "__", -1)
 		qs = qs.Filter(k, v)
-	}
-
-	num, err = qs.Count()
-	if err != nil {
-		return nil, num, err
 	}
 	// order by:
 	var sortFields []string
@@ -70,7 +63,7 @@ func GetAllResult(query map[string]string, fields []string, sortby []string, ord
 				} else if order[i] == "asc" {
 					orderby = v
 				} else {
-					return nil, num, errors.New("Error: Invalid order. Must be either [asc|desc]")
+					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
 				}
 				sortFields = append(sortFields, orderby)
 			}
@@ -84,30 +77,22 @@ func GetAllResult(query map[string]string, fields []string, sortby []string, ord
 				} else if order[0] == "asc" {
 					orderby = v
 				} else {
-					return nil, num, errors.New("Error: Invalid order. Must be either [asc|desc]")
+					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
 				}
 				sortFields = append(sortFields, orderby)
 			}
 		} else if len(sortby) != len(order) && len(order) != 1 {
-			return nil, num, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
+			return nil, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
 		}
 	} else {
 		if len(order) != 0 {
-			return nil, num, errors.New("Error: unused 'order' fields")
+			return nil, errors.New("Error: unused 'order' fields")
 		}
 	}
 
-	var l []Result
-
-	if len(fields) == 1 {
-		qs = qs.Distinct()
-	}
-
-	qs = qs.OrderBy(sortFields...)
-	if limit > 0 {
-		qs = qs.Limit(limit, offset)
-	}
-	if _, err = qs.All(&l, fields...); err == nil {
+	var l []Record
+	qs = qs.OrderBy(sortFields...).RelatedSel()
+	if _, err = qs.Limit(limit, offset).All(&l, fields...); err == nil {
 		if len(fields) == 0 {
 			for _, v := range l {
 				ml = append(ml, v)
@@ -123,16 +108,16 @@ func GetAllResult(query map[string]string, fields []string, sortby []string, ord
 				ml = append(ml, m)
 			}
 		}
-		return ml, num, nil
+		return ml, nil
 	}
-	return nil, num, err
+	return nil, err
 }
 
-// UpdateResult updates Result by Id and returns error if
+// UpdateRecord updates Record by Id and returns error if
 // the record to be updated doesn't exist
-func UpdateResultById(m *Result) (err error) {
+func UpdateRecordById(m *Record) (err error) {
 	o := orm.NewOrm()
-	v := Result{Id: m.Id}
+	v := Record{Id: m.Id}
 	// ascertain id exists in the database
 	if err = o.Read(&v); err == nil {
 		var num int64
@@ -143,17 +128,34 @@ func UpdateResultById(m *Result) (err error) {
 	return
 }
 
-// DeleteResult deletes Result by Id and returns error if
+// DeleteRecord deletes Record by Id and returns error if
 // the record to be deleted doesn't exist
-func DeleteResult(id int64) (err error) {
+func DeleteRecord(id int64) (err error) {
 	o := orm.NewOrm()
-	v := Result{Id: id}
+	v := Record{Id: id}
 	// ascertain id exists in the database
 	if err = o.Read(&v); err == nil {
 		var num int64
-		if num, err = o.Delete(&Result{Id: id}); err == nil {
+		if num, err = o.Delete(&Record{Id: id}); err == nil {
 			fmt.Println("Number of records deleted in database:", num)
 		}
 	}
 	return
+}
+
+func GetRecordByUserId(id int64) (records []*Record, err error) {
+	o := orm.NewOrm()
+	user := User{Id: id}
+	if err := o.Read(&user); err != nil {
+		return nil, err
+	}
+	qs := o.QueryTable("record").OrderBy("-time").RelatedSel()
+
+	if user.Type == 0 {
+		qs = qs.Filter("User", user.Id)
+	}
+	if _, err = qs.All(&records); err != nil {
+		return nil, err
+	}
+	return records, err
 }

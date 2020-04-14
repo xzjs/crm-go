@@ -46,7 +46,7 @@ func (c *TaskController) Post() {
 			c.Abort("500")
 		}
 
-		err = doPython(user.Id)
+		err = doPython(user.Id, v.Id)
 		if err != nil {
 			c.Data["json"] = err.Error()
 			c.Abort("500")
@@ -60,15 +60,16 @@ func (c *TaskController) Post() {
 }
 
 // 执行python脚本
-func doPython(id int64) (err error) {
-	cmdStr := fmt.Sprintf("cd %srawdata/ && python3 startup.py CASData %d_CAS.csv %d_acct_coverage_by_event.txt %d_CASData.txt %d_visit_history.txt",
-		beego.AppConfig.String("xiaodai"), id, id, id, id)
+func doPython(id int64, taskId int64) (err error) {
+	cmdStr := fmt.Sprintf("cd %srawdata/ && python3 startup.py CASData %d_CAS.csv %d_acct_coverage_by_event.txt %d_CASData.txt %d_visit_history.txt %d",
+		beego.AppConfig.String("xiaodai"), id, id, id, id, taskId)
+	fmt.Println(cmdStr)
 	cmd := exec.Command("bash", "-c", cmdStr)
 	err = cmd.Start()
 	if err != nil {
 		return err
 	}
-	err = cmd.Wait()
+	// err = cmd.Wait()
 	return err
 }
 

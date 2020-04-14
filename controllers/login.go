@@ -31,9 +31,18 @@ func (l *LoginController) Post() {
 		l.Data["json"] = err.Error()
 		l.Abort("500")
 	}
+
+	user := models.User{Id: id}
+	record := models.Record{User: &user}
+	if _, err = models.AddRecord(&record); err != nil {
+		l.Data["json"] = err.Error()
+		l.Abort("500")
+	}
+
 	l.SetSession("uid", id)
 	l.Data["json"] = id
 	l.ServeJSON()
+
 }
 
 // @Title GetLoginUser

@@ -42,3 +42,10 @@ func (u *User) GetTasks() (tasks []*Task, err error) {
 	_, err = o.QueryTable("task").Filter("User", u.Id).RelatedSel().OrderBy("-start_time").All(&tasks)
 	return tasks, err
 }
+
+// 获取用户所有记录
+func (u *User) GetRecords() (records []*Record, err error) {
+	o := orm.NewOrm()
+	_, err = o.QueryTable("record").Filter("User", u.Id).OrderBy("-time").All(&records)
+	return records, err
+}

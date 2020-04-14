@@ -78,7 +78,7 @@ func (c *ResultController) GetAll() {
 	var sortby []string
 	var order []string
 	var query = make(map[string]string)
-	var limit int64 = 10
+	var limit int64 = 0
 	var offset int64
 
 	// fields: col1,col2,entity.col3
@@ -115,11 +115,15 @@ func (c *ResultController) GetAll() {
 		}
 	}
 
-	l, err := models.GetAllResult(query, fields, sortby, order, offset, limit)
+	l, num, err := models.GetAllResult(query, fields, sortby, order, offset, limit)
 	if err != nil {
 		c.Data["json"] = err.Error()
+		c.Abort("500")
 	} else {
-		c.Data["json"] = l
+		ml := make(map[string]interface{})
+		ml["num"] = num
+		ml["data"] = l
+		c.Data["json"] = ml
 	}
 	c.ServeJSON()
 }
