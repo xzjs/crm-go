@@ -61,8 +61,8 @@ func (c *TaskController) Post() {
 
 // 执行python脚本
 func doPython(id int64, taskId int64) (err error) {
-	cmdStr := fmt.Sprintf("cd %srawdata/ && python3 startup.py CASData %d_CAS.csv %d_acct_coverage_by_event.txt %d_CASData.txt %d_visit_history.txt %d",
-		beego.AppConfig.String("xiaodai"), id, id, id, id, taskId)
+	cmdStr := fmt.Sprintf(beego.AppConfig.String("python"),
+		beego.AppConfig.String("xiaodai"), id, id, id, id, taskId, taskId)
 	fmt.Println(cmdStr)
 	cmd := exec.Command("bash", "-c", cmdStr)
 	err = cmd.Start()
@@ -75,7 +75,7 @@ func doPython(id int64, taskId int64) (err error) {
 
 // GetOne ...
 // @Title Get One
-// @Description get Task by id
+// @Description 下载任务文件
 // @Param	id		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Task
 // @Failure 403 :id is empty
@@ -84,12 +84,22 @@ func (c *TaskController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.ParseInt(idStr, 0, 64)
 	v, err := models.GetTaskById(id)
+
+	isEmerging, err := c.GetInt64("is_emerging")
+	fileName := "predict_result_all.csv"
+	if isEmerging == 1 {
+		fileName = "predict_result_emerging.csv"
+	}
+
 	if err != nil {
 		c.Data["json"] = err.Error()
-	} else {
-		c.Data["json"] = v
+		c.Abort("500")
 	}
-	c.ServeJSON()
+	if v.Status != 3 {
+		c.Data["json"] = "文件未生成"
+		c.Abort("500")
+	}
+	c.Ctx.Output.Download(fmt.Sprintf("%sdata/tmp_data/%d_%s", beego.AppConfig.String("xiaodai"), id, fileName), fileName)
 }
 
 // @Title Get All

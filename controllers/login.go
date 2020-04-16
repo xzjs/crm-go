@@ -54,9 +54,9 @@ func (l *LoginController) Get() {
 	id := l.GetSession("uid")
 	v, err := models.GetUserById(id.(int64))
 	if err != nil {
+		l.Ctx.ResponseWriter.WriteHeader(401)
 		l.Data["json"] = err.Error()
 	} else {
-		l.Ctx.ResponseWriter.WriteHeader(401)
 		l.Data["json"] = v
 	}
 	l.ServeJSON()

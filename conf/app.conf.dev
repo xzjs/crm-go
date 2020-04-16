@@ -1,7 +1,10 @@
 appname = crm-go
-httpport = 8080
+httpport = 8081
 runmode = dev
 autorender = false
 copyrequestbody = true
 EnableDocs = true
-sqlconn = 
+sqlconn = root:root@tcp(127.0.0.1:3306)/crm?charset=utf8
+xiaodai = "/Users/xzjs/ZhuGeXiaoDai/"
+python = "cd %srawdata/ && python3 startup.py CASData %d_CAS.csv %d_acct_coverage_by_event.txt %d_CASData.txt %d_visit_history.txt %d >> log/%d_rawdata 2>&1"
+redis = {"key":"crm","conn":"127.0.0.1:6379"}
