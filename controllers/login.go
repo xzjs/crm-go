@@ -61,3 +61,14 @@ func (l *LoginController) Get() {
 	}
 	l.ServeJSON()
 }
+
+// @Title Delete
+// @Description 退出登录
+// @Param	id		path 	string	true		"The id you want to delete"
+// @Success 200 {string} 'ok'
+// @router /:id [delete]
+func (c *LoginController) Delete() {
+	c.DelSession("uid")
+	c.Data["json"] = "OK"
+	c.ServeJSON()
+}

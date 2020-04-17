@@ -88,6 +88,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["crm-go/controllers:LoginController"] = append(beego.GlobalControllerRouter["crm-go/controllers:LoginController"],
+        beego.ControllerComments{
+            Method: "Delete",
+            Router: `/:id`,
+            AllowHTTPMethods: []string{"delete"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["crm-go/controllers:ObjectController"] = append(beego.GlobalControllerRouter["crm-go/controllers:ObjectController"],
         beego.ControllerComments{
             Method: "Post",
